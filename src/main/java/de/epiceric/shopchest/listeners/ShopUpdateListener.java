@@ -28,20 +28,20 @@ public class ShopUpdateListener implements Listener {
 
         // Wait till the chunk should have loaded on the client
         // Update IF worlds are different OR chunks are different (as many teleports are in same chunk)
-        if (!from.getWorld().equals(to.getWorld())
+        if (!from.getWorld().getName().equals(to.getWorld().getName())
                 || from.getChunk().getX() != to.getChunk().getX()
                 || from.getChunk().getZ() != to.getChunk().getZ()) {
             // Wait for 15 ticks before we actually put it in the queue
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    plugin.getUpdater().beforeNext(new Runnable() {
+                    plugin.getShopUpdater().add(new Runnable() {
                         @Override
                         public void run() {
                             if (p.isOnline()) {
                                 for (Shop shop : plugin.getShopUtils().getShops()) {
                                     if (shop.getItem() != null) {
-                                        shop.getItem().setVisible(p, false);
+                                        shop.getItem().hidePlayer(p);
                                     }
                                     if (shop.getHologram() != null) {
                                         shop.getHologram().hidePlayer(p);

@@ -126,7 +126,7 @@ public class Shop {
             this.item = new ShopItem(plugin, itemStack, itemLocation);
 
             for (Player p : Bukkit.getOnlinePlayers()) {
-                item.setVisible(p, true);
+                item.showPlayer(p);
             }
         }
     }

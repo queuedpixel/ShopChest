@@ -154,8 +154,20 @@ public class Hologram {
      */
     public void showPlayer(final Player p) {
         if (!isVisible(p)) {
-            plugin.getHologramUpdater().addToQueue(this, p, true);
-            visibility.add(p.getUniqueId());
+            plugin.getHologramUpdater().add(new Runnable() {
+                @Override
+                public void run() {
+                    for (ArmorStandWrapper wrapper : wrappers) {
+                        wrapper.setVisible(p, true);
+                    }
+
+                    if (interactArmorStandWrapper != null) {
+                        interactArmorStandWrapper.setVisible(p, true);
+                    }
+
+                    visibility.add(p.getUniqueId());
+                }
+            });
         }
     }
 
@@ -164,8 +176,20 @@ public class Hologram {
      */
     public void hidePlayer(final Player p) {
         if (isVisible(p)) {
-            plugin.getHologramUpdater().addToQueue(this, p, false);
-            visibility.remove(p.getUniqueId());
+            plugin.getHologramUpdater().add(new Runnable() {
+                @Override
+                public void run() {
+                    for (ArmorStandWrapper wrapper : wrappers) {
+                        wrapper.setVisible(p, false);
+                    }
+
+                    if (interactArmorStandWrapper != null) {
+                        interactArmorStandWrapper.setVisible(p, false);
+                    }
+
+                    visibility.remove(p.getUniqueId());
+                }
+            });
         }
     }
 
@@ -212,6 +236,7 @@ public class Hologram {
      * Hologram will be hidden from all players and will be killed
      */
     public void remove() {
+        // has to be sync because hologram updater stops on disable
         for (ArmorStandWrapper wrapper : wrappers) {
             wrapper.remove();
         }

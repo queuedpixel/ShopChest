@@ -31,12 +31,14 @@ public class ShopItemListener implements Listener {
     public void onPlayerLeave(PlayerQuitEvent e) {
         for (Shop shop : plugin.getShopUtils().getShops()) {
             if (shop.getItem() != null) {
-                shop.getItem().setVisible(e.getPlayer(), false);
+                shop.getItem().hidePlayer(e.getPlayer());
             }
             if (shop.getHologram() != null) {
                 shop.getHologram().hidePlayer(e.getPlayer());
             }
         }
+
+        shopUtils.removePlayerLocation(e.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH)

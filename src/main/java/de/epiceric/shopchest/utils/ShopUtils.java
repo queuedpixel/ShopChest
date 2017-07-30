@@ -221,7 +221,8 @@ public class ShopUtils {
             plugin.getShopChestConfig().reload(false, true, showConsoleMessages);
             plugin.getHologramFormat().reload();
             plugin.getHologramUpdater().restart();
-            plugin.getUpdater().restart();
+            plugin.getItemUpdater().restart();
+            plugin.getShopUpdater().restart();
         }
 
         plugin.getShopDatabase().connect(new Callback<Integer>(plugin) {
@@ -285,7 +286,7 @@ public class ShopUtils {
 
             for (Shop shop : sight) {
                 _sight.add(shop);
-                if (shop.getHologram() != null && !shop.getHologram().isVisible(player)) {
+                if (shop.getHologram() != null) {
                     shop.getHologram().showPlayer(player);
                 }
 
@@ -297,9 +298,9 @@ public class ShopUtils {
             for (Shop shop : getShops()) {
                 if (shop.getItem() != null && shop.getLocation().getWorld().getName().equals(player.getWorld().getName())) {
                     if (shop.getLocation().distanceSquared(player.getEyeLocation()) <= itemDistSqr) {
-                        shop.getItem().setVisible(player, true);
+                        shop.getItem().showPlayer(player);
                     } else {
-                        shop.getItem().setVisible(player, false);
+                        shop.getItem().hidePlayer(player);
                     }
                 }
 
@@ -314,6 +315,12 @@ public class ShopUtils {
         }
 
         playerLocation.put(player.getUniqueId(), player.getLocation());
+    }
+
+    /** Remove a player from the {@code playerLocation} map.
+     * This should only be called when the player quits */
+    public void removePlayerLocation(Player player) {
+        playerLocation.remove(player.getUniqueId());
     }
 
     private Set<Shop> getShopsInSight(Player player) {
@@ -390,9 +397,9 @@ public class ShopUtils {
 
             if (shop.getItem() != null) {
                 if (distSqr <= itemDistSqr) {
-                    shop.getItem().setVisible(player, true);
+                    shop.getItem().showPlayer(player);
                 } else {
-                    shop.getItem().setVisible(player, false);
+                    shop.getItem().hidePlayer(player);
                 }
             }
         }

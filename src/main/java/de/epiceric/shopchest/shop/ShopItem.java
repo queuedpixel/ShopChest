@@ -93,7 +93,8 @@ public class ShopItem {
     public void remove() {
         for (UUID uuid : visibility) {
             Player p = Bukkit.getPlayer(uuid);
-            if (p != null) setVisible(p, false);
+            // has to be sync because item updater stops on disable
+            sendRemovePacket(p);
         }
     }
 
@@ -102,38 +103,52 @@ public class ShopItem {
      * @param p Player, for which the item should be reset
      */
     public void resetForPlayer(Player p) {
-        setVisible(p, false);
-        setVisible(p, true);
+        hidePlayer(p);
+        showPlayer(p);
     }
 
     public boolean isVisible(Player p) {
         return visibility.contains(p.getUniqueId());
     }
 
-    public void setVisible(final Player p, boolean visible) {
-        if (isVisible(p) == visible)
-            return;
-
-        if (visible) {
-            for (Object packet : this.creationPackets) {
-                Utils.sendPacket(plugin, packet, p);
-            }
-            visibility.add(p.getUniqueId());
-        } else {
-            try {
-                if (p.isOnline()) {
-                    Object packetPlayOutEntityDestroy = packetPlayOutEntityDestroyClass.getConstructor(int[].class).newInstance((Object) new int[]{entityId});
-                    Utils.sendPacket(plugin, packetPlayOutEntityDestroy, p);
+    public void showPlayer(final Player p) {
+        if (!isVisible(p)) {
+            plugin.getItemUpdater().add(new Runnable() {
+                @Override
+                public void run() {
+                    for (Object packet : creationPackets) {
+                        Utils.sendPacket(plugin, packet, p);
+                    }
+                    visibility.add(p.getUniqueId());
                 }
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                plugin.getLogger().severe("Failed to destroy shop item");
-                plugin.debug("Failed to destroy shop item with reflection");
-                plugin.debug(e);
-            }
-            visibility.remove(p.getUniqueId());
+            });
         }
     }
 
+    public void hidePlayer(final Player p) {
+        if (isVisible(p)) {
+            plugin.getItemUpdater().add(new Runnable() {
+                @Override
+                public void run() {
+                    sendRemovePacket(p);
+                    visibility.remove(p.getUniqueId());
+                }
+            });
+        }
+    }
+
+    private void sendRemovePacket(Player p) {
+        try {
+            if (p.isOnline()) {
+                Object packetPlayOutEntityDestroy = packetPlayOutEntityDestroyClass.getConstructor(int[].class).newInstance((Object) new int[]{entityId});
+                Utils.sendPacket(plugin, packetPlayOutEntityDestroy, p);
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            plugin.getLogger().severe("Failed to destroy shop item");
+            plugin.debug("Failed to destroy shop item with reflection");
+            plugin.debug(e);
+        }
+    }
 
     /**
      * @return Clone of the location, where the shop item should be (it could have been moved by something, even though it shouldn't)

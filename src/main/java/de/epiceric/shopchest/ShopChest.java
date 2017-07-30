@@ -26,7 +26,7 @@ import de.epiceric.shopchest.shop.Shop.ShopType;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
-import de.epiceric.shopchest.threading.HologramUpdater;
+import de.epiceric.shopchest.threading.AsyncUpdater;
 import de.epiceric.shopchest.threading.ShopUpdater;
 import de.epiceric.shopchest.utils.Callback;
 import de.epiceric.shopchest.utils.Permissions;
@@ -79,8 +79,9 @@ public class ShopChest extends JavaPlugin {
     private IslandWorld islandWorld;
     private GriefPrevention griefPrevention;
     private AreaShop areaShop;
-    private ShopUpdater updater;
-    private HologramUpdater hologramUpdater;
+    private ShopUpdater shopUpdater;
+    private AsyncUpdater hologramUpdater;
+    private AsyncUpdater itemUpdater;
 
     /**
      * @return An instance of ShopChest
@@ -192,20 +193,23 @@ public class ShopChest extends JavaPlugin {
         registerListeners();
         initializeShops();
 
-        hologramUpdater = new HologramUpdater(this);
+        hologramUpdater = new AsyncUpdater(this);
         hologramUpdater.start();
 
-        updater = new ShopUpdater(this);
-        updater.start();
+        itemUpdater = new AsyncUpdater(this);
+        itemUpdater.start();
+
+        shopUpdater = new ShopUpdater(this);
+        shopUpdater.start();
     }
 
     @Override
     public void onDisable() {
         debug("Disabling ShopChest...");
 
-        if (updater != null) {
+        if (shopUpdater != null) {
             debug("Stopping updater");
-            updater.stop();
+            shopUpdater.stop();
         }
 
         if (database != null) {
@@ -219,6 +223,10 @@ public class ShopChest extends JavaPlugin {
 
         if (hologramUpdater != null) {
             hologramUpdater.stop();
+        }
+
+        if (itemUpdater != null) {
+            itemUpdater.stop();
         }
 
         if (fw != null && config.enable_debug_log) {
@@ -448,17 +456,24 @@ public class ShopChest extends JavaPlugin {
     }
 
     /**
-     * @return The {@link HologramUpdater} that schedules hologram updates
+     * @return The {@link AsyncUpdater} that schedules item updates
      */
-    public HologramUpdater getHologramUpdater() {
+    public AsyncUpdater getItemUpdater() {
+        return itemUpdater;
+    }
+
+    /**
+     * @return The {@link AsyncUpdater} that schedules hologram updates
+     */
+    public AsyncUpdater getHologramUpdater() {
         return hologramUpdater;
     }
 
     /**
      * @return The {@link ShopUpdater} that schedules shop updates
      */
-    public ShopUpdater getUpdater() {
-        return updater;
+    public ShopUpdater getShopUpdater() {
+        return shopUpdater;
     }
 
     /**

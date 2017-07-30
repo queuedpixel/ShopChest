@@ -699,7 +699,7 @@ public class ShopInteractListener implements Listener {
             }
             if (p.getLocation().distanceSquared(location) <= Math.pow(config.maximal_item_distance, 2)) {
                 if (shop.getItem() != null) {
-                    shop.getItem().setVisible(p, true);
+                    shop.getItem().showPlayer(p);
                 }
             }
         }
