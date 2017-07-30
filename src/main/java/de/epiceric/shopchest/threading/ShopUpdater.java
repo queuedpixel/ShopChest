@@ -1,8 +1,9 @@
-package de.epiceric.shopchest.utils;
+package de.epiceric.shopchest.threading;
 
 import de.epiceric.shopchest.ShopChest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Queue;
@@ -33,7 +34,7 @@ public class ShopUpdater {
     private final ShopChest plugin;
     private final Queue<Runnable> beforeNext = new ConcurrentLinkedQueue<>();
 
-    private volatile BukkitTask running;
+    private volatile BukkitTask task;
 
     public ShopUpdater(ShopChest plugin) {
         this.plugin = plugin;
@@ -45,12 +46,12 @@ public class ShopUpdater {
     public void start() {
         if (!isRunning()) {
             long interval = plugin.getShopChestConfig().update_quality.getInterval();
-            running = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new ShopUpdaterTask(), interval, interval);
+            task = new ShopUpdaterTask().runTaskTimerAsynchronously(plugin, interval, interval);
         }
     }
 
     /**
-     * Stop any running task then start it again
+     * Stop any task task then start it again
      */
     public void restart() {
         stop();
@@ -61,17 +62,17 @@ public class ShopUpdater {
      * Stop task properly
      */
     public void stop() {
-        if (running != null) {
-            running.cancel();
-            running = null;
+        if (isRunning()) {
+            task.cancel();
+            task = null;
         }
     }
 
     /**
-     * @return whether task is running or not
+     * @return whether task is task or not
      */
     public boolean isRunning() {
-        return running != null;
+        return task != null;
     }
 
     /**
@@ -83,15 +84,16 @@ public class ShopUpdater {
         beforeNext.add(runnable);
     }
 
-    private class ShopUpdaterTask implements Runnable {
+    private class ShopUpdaterTask extends BukkitRunnable {
 
         @Override
         public void run() {
             if (!beforeNext.isEmpty()) {
-                for (Runnable runnable : beforeNext) {
+                Runnable runnable;
+
+                while ((runnable = beforeNext.poll()) != null) {
                     runnable.run();
                 }
-                beforeNext.clear();
             }
 
             for (Player p : Bukkit.getOnlinePlayers()) {

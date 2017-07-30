@@ -154,19 +154,7 @@ public class Hologram {
      */
     public void showPlayer(final Player p) {
         if (!isVisible(p)) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    for (ArmorStandWrapper wrapper : wrappers) {
-                        wrapper.setVisible(p, true);
-                    }
-
-                    if (interactArmorStandWrapper != null) {
-                        interactArmorStandWrapper.setVisible(p, true);
-                    }
-                }
-            }.runTaskAsynchronously(plugin);
-
+            plugin.getHologramUpdater().addToQueue(this, p, true);
             visibility.add(p.getUniqueId());
         }
     }
@@ -176,19 +164,7 @@ public class Hologram {
      */
     public void hidePlayer(final Player p) {
         if (isVisible(p)) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    for (ArmorStandWrapper wrapper : wrappers) {
-                        wrapper.setVisible(p, false);
-                    }
-
-                    if (interactArmorStandWrapper != null) {
-                        interactArmorStandWrapper.setVisible(p, false);
-                    }
-                }
-            }.runTaskAsynchronously(plugin);
-
+            plugin.getHologramUpdater().addToQueue(this, p, false);
             visibility.remove(p.getUniqueId());
         }
     }

@@ -220,6 +220,7 @@ public class ShopUtils {
         if (reloadConfig) {
             plugin.getShopChestConfig().reload(false, true, showConsoleMessages);
             plugin.getHologramFormat().reload();
+            plugin.getHologramUpdater().restart();
             plugin.getUpdater().restart();
         }
 

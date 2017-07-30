@@ -4,7 +4,7 @@ import de.epiceric.shopchest.ShopChest;
 import de.epiceric.shopchest.language.LanguageUtils;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.utils.ItemUtils;
-import de.epiceric.shopchest.utils.ShopUpdater;
+import de.epiceric.shopchest.threading.ShopUpdater;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.inventory.ItemStack;
 

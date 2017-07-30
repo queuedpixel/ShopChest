@@ -26,9 +26,10 @@ import de.epiceric.shopchest.shop.Shop.ShopType;
 import de.epiceric.shopchest.sql.Database;
 import de.epiceric.shopchest.sql.MySQL;
 import de.epiceric.shopchest.sql.SQLite;
+import de.epiceric.shopchest.threading.HologramUpdater;
+import de.epiceric.shopchest.threading.ShopUpdater;
 import de.epiceric.shopchest.utils.Callback;
 import de.epiceric.shopchest.utils.Permissions;
-import de.epiceric.shopchest.utils.ShopUpdater;
 import de.epiceric.shopchest.utils.ShopUtils;
 import de.epiceric.shopchest.utils.UpdateChecker;
 import de.epiceric.shopchest.utils.UpdateChecker.UpdateCheckerResult;
@@ -79,6 +80,7 @@ public class ShopChest extends JavaPlugin {
     private GriefPrevention griefPrevention;
     private AreaShop areaShop;
     private ShopUpdater updater;
+    private HologramUpdater hologramUpdater;
 
     /**
      * @return An instance of ShopChest
@@ -190,6 +192,9 @@ public class ShopChest extends JavaPlugin {
         registerListeners();
         initializeShops();
 
+        hologramUpdater = new HologramUpdater(this);
+        hologramUpdater.start();
+
         updater = new ShopUpdater(this);
         updater.start();
     }
@@ -210,6 +215,10 @@ public class ShopChest extends JavaPlugin {
             }
 
             database.disconnect();
+        }
+
+        if (hologramUpdater != null) {
+            hologramUpdater.stop();
         }
 
         if (fw != null && config.enable_debug_log) {
@@ -439,7 +448,14 @@ public class ShopChest extends JavaPlugin {
     }
 
     /**
-     * @return The {@link ShopUpdater} that schedules hologram and item updates
+     * @return The {@link HologramUpdater} that schedules hologram updates
+     */
+    public HologramUpdater getHologramUpdater() {
+        return hologramUpdater;
+    }
+
+    /**
+     * @return The {@link ShopUpdater} that schedules shop updates
      */
     public ShopUpdater getUpdater() {
         return updater;
