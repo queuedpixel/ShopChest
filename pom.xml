@@ -132,6 +132,10 @@
             <url>http://dl.bintray.com/tastybento/maven-repo</url>
         </repository>
         <repository>
+            <id>codemc-repo</id>
+            <url>http://repo.codemc.org/repository/maven-public/</url>
+        </repository>
+        <repository>
             <id>jitpack-repo</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -158,7 +162,7 @@
         <dependency>
             <groupId>fr.xephi</groupId>
             <artifactId>authme</artifactId>
-            <version>5.2</version>
+            <version>5.4.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
