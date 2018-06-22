@@ -256,6 +256,7 @@
                             <shadedPattern>de.epiceric.shopchest.utils</shadedPattern>
                         </relocation>
                     </relocations>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
                 <executions>
                     <execution>
